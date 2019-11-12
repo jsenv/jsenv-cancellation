@@ -46,6 +46,7 @@
 		"@jsenv/execution": "6.11.0",
 		"@jsenv/node-launcher": "4.26.0",
 		"@jsenv/node-module-import-map": "8.4.1",
+		"@jsenv/node-signals": "1.0.0",
 		"@jsenv/prettier-check-project": "3.5.0",
 		"@jsenv/prettier-config": "1.0.1",
 		"@jsenv/testing": "3.9.0",
