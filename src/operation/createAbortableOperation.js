@@ -42,9 +42,3 @@ abort`)
 
   return operationPromise
 }
-
-const ensureExactParameters = (extraParameters) => {
-  const extraParamNames = Object.keys(extraParameters)
-  if (extraParamNames.length)
-    throw new Error(`createOperation expect only cancellationToken, start. Got ${extraParamNames}`)
-}
