@@ -6,6 +6,7 @@ export { createConcurrentOperations } from "./src/operation/createConcurrentOper
 export { createOperation } from "./src/operation/createOperation.js"
 export { createOperationSequence } from "./src/operation/createOperationSequence.js"
 export { createStoppableOperation } from "./src/operation/createStoppableOperation.js"
+export { firstOperationMatching } from "./src/operation/firstOperationMatching.js"
 
 // cancellation API
 export { createCancelError, isCancelError, errorToCancelReason } from "./src/cancelError.js"
