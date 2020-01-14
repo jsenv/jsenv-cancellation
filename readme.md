@@ -1,11 +1,11 @@
-# Cancellation
+# cancellation
+
+Make async function cancellable.
 
 [![github package](https://img.shields.io/github/package-json/v/jsenv/jsenv-cancellation.svg?logo=github&label=package)](https://github.com/jsenv/jsenv-cancellation/packages)
 [![npm package](https://img.shields.io/npm/v/@jsenv/cancellation.svg?logo=npm&label=package)](https://www.npmjs.com/package/@jsenv/cancellation)
 [![github ci](https://github.com/jsenv/jsenv-cancellation/workflows/ci/badge.svg)](https://github.com/jsenv/jsenv-cancellation/actions?workflow=ci)
 [![codecov coverage](https://codecov.io/gh/jsenv/jsenv-cancellation/branch/master/graph/badge.svg)](https://codecov.io/gh/jsenv/jsenv-cancellation)
-
-Make your async function cancellable.
 
 ## Table of contents
 
