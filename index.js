@@ -17,6 +17,4 @@ export { createCancellationToken } from "./src/createCancellationToken.js"
 // a useful helper to avoid throwing on cancellation
 export { catchAsyncFunctionCancellation } from "./src/catchAsyncFunctionCancellation.js"
 // should not be here but its simpler to provide directlry this useful helper
-export {
-  createCancellationTokenForProcessSIGINT,
-} from "./src/createCancellationTokenForProcessSIGINT.js"
+export { createCancellationTokenForProcessSIGINT } from "./src/createCancellationTokenForProcessSIGINT.js"

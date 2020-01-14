@@ -7,7 +7,6 @@ Make async function cancellable.
 [![github ci](https://github.com/jsenv/jsenv-cancellation/workflows/ci/badge.svg)](https://github.com/jsenv/jsenv-cancellation/actions?workflow=ci)
 [![codecov coverage](https://codecov.io/gh/jsenv/jsenv-cancellation/branch/master/graph/badge.svg)](https://codecov.io/gh/jsenv/jsenv-cancellation)
 
-
 ## Table of contents
 
 - [Presentation](#Presentation)
