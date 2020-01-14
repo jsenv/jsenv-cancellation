@@ -1,4 +1,4 @@
-import { assert } from "@dmail/assert"
+import { assert } from "@jsenv/assert"
 import { createCancellationSource, createOperation, errorToCancelReason } from "../../index.js"
 
 const { token, cancel } = createCancellationSource()

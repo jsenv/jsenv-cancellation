@@ -1,4 +1,4 @@
-import { assert } from "@dmail/assert"
+import { assert } from "@jsenv/assert"
 import { createCancellationSource } from "../../index.js"
 import { startServer, requestServer } from "./fixtures.js"
 
