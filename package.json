@@ -1,6 +1,6 @@
 {
   "name": "@jsenv/cancellation",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Make async function cancellable.",
   "license": "MIT",
   "repository": {
@@ -21,7 +21,6 @@
       "require": "./dist/commonjs/main.cjs"
     }
   },
-  "module": "index.js",
   "main": "dist/commonjs/main.cjs",
   "files": [
     "/dist/",
@@ -49,20 +48,20 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@jsenv/assert": "1.2.1",
-    "@jsenv/codecov-upload": "3.1.0",
-    "@jsenv/core": "10.6.0-alpha.0",
-    "@jsenv/eslint-config": "12.1.0",
+    "@jsenv/assert": "1.2.2",
+    "@jsenv/codecov-upload": "3.2.0",
+    "@jsenv/core": "11.1.0",
+    "@jsenv/eslint-config": "12.2.0",
     "@jsenv/git-hooks": "1.2.0",
     "@jsenv/github-release-package": "1.1.1",
-    "@jsenv/node-module-import-map": "10.1.0",
-    "@jsenv/node-signals": "1.2.0",
-    "@jsenv/package-publish": "1.4.0",
-    "@jsenv/prettier-check-project": "5.3.0",
-    "@jsenv/prettier-config": "1.1.0",
+    "@jsenv/node-module-import-map": "10.4.0",
+    "@jsenv/node-signals": "1.2.1",
+    "@jsenv/package-publish": "1.4.1",
+    "@jsenv/prettier-check-project": "5.4.0",
+    "@jsenv/prettier-config": "1.2.0",
     "babel-eslint": "11.0.0-beta.0",
     "eslint": "6.8.0",
     "prettier": "1.19.1",
-    "rimraf": "3.0.0"
+    "rimraf": "3.0.1"
   }
 }
