@@ -1,6 +1,6 @@
 {
   "name": "@jsenv/cancellation",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Make async function cancellable.",
   "license": "MIT",
   "repository": {
@@ -37,14 +37,12 @@
     "upload-coverage": "node ./script/upload-coverage/upload-coverage.js",
     "generate-commonjs-bundle": "node ./script/generate-commonjs-bundle/generate-commonjs-bundle.js",
     "generate-import-map": "node ./script/generate-import-map/generate-import-map.js",
-    "install-git-hooks": "node ./script/install-git-hooks/install-git-hooks.js",
     "dist": "npm run clean && npm run generate-commonjs-bundle",
     "clean": "rimraf dist && rimraf coverage",
     "reinstall": "npm run clean && rimraf node_modules && npm install",
-    "postinstall": "npm run generate-import-map && npm run install-git-hooks",
+    "postinstall": "npm run generate-import-map",
     "prepublishOnly": "node ./script/transform-package/remove-postinstall.js && npm run dist",
-    "postpublish": "node ./script/transform-package/restore-postinstall.js",
-    "git-hook-pre-commit": "npm run prettier-format-stage"
+    "postpublish": "node ./script/transform-package/restore-postinstall.js"
   },
   "dependencies": {},
   "devDependencies": {
@@ -52,7 +50,6 @@
     "@jsenv/codecov-upload": "3.2.0",
     "@jsenv/core": "11.1.0",
     "@jsenv/eslint-config": "12.2.0",
-    "@jsenv/git-hooks": "1.2.0",
     "@jsenv/github-release-package": "1.1.1",
     "@jsenv/node-module-import-map": "10.4.0",
     "@jsenv/node-signals": "1.2.1",

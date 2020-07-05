@@ -9,21 +9,17 @@ export const firstOperationMatching = ({ array, start, predicate }) => {
     throw new TypeError(`predicate must be a function, got ${predicate}`)
   }
 
-  return new Promise((resolve, reject) => {
-    const visit = (index) => {
-      if (index >= array.length) {
-        return resolve()
-      }
-      const input = array[index]
-      const returnValue = start(input)
-      return Promise.resolve(returnValue).then((output) => {
-        if (predicate(output)) {
-          return resolve(output)
-        }
-        return visit(index + 1)
-      }, reject)
+  const visit = async (index) => {
+    if (index >= array.length) {
+      return undefined
     }
+    const input = array[index]
+    const output = await start(input)
+    if (predicate(output)) {
+      return output
+    }
+    return visit(index + 1)
+  }
 
-    visit(0)
-  })
+  return visit(0)
 }
