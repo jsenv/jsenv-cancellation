@@ -1,5 +1,5 @@
 import { assert } from "@jsenv/assert"
-import { createCancellationSource, createOperation, errorToCancelReason } from "../../index.js"
+import { createCancellationSource, createOperation, errorToCancelReason } from "@jsenv/cancellation"
 
 const { token, cancel } = createCancellationSource()
 

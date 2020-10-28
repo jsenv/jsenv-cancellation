@@ -1,5 +1,5 @@
 import { assert } from "@jsenv/assert"
-import { createCancellationSource, errorToCancelReason } from "../../index.js"
+import { createCancellationSource, errorToCancelReason } from "@jsenv/cancellation"
 import { startServer, requestServer } from "./fixtures.js"
 
 {

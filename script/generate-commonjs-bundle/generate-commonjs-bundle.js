@@ -1,7 +1,9 @@
-const { generateCommonJsBundleForNode } = require("@jsenv/core")
-const jsenvConfig = require("../../jsenv.config.js")
+import { generateBundle, getBabelPluginMapForNode } from "@jsenv/core"
+import * as jsenvConfig from "../../jsenv.config.js"
 
-generateCommonJsBundleForNode({
+generateBundle({
   ...jsenvConfig,
-  cjsExtension: true,
+  format: "commonjs",
+  babelPluginMap: getBabelPluginMapForNode(),
+  bundleDirectoryClean: true,
 })

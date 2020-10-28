@@ -1,6 +1,6 @@
 import { assert } from "@jsenv/assert"
 import { exitSignal } from "@jsenv/node-signals"
-import { createOperation } from "../../index.js"
+import { createOperation } from "@jsenv/cancellation"
 
 const error = new Error("here")
 exitSignal.addCallback(

@@ -3,7 +3,7 @@ import {
   createCancellationToken,
   createStoppableOperation,
   createAbortableOperation,
-} from "../../index.js"
+} from "@jsenv/cancellation"
 
 export const startServer = async ({ cancellationToken = createCancellationToken() } = {}) => {
   cancellationToken.throwIfRequested()

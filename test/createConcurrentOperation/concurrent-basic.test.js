@@ -1,6 +1,6 @@
 import { assert } from "@jsenv/assert"
 import { exitSignal } from "@jsenv/node-signals"
-import { createConcurrentOperations } from "../../index.js"
+import { createConcurrentOperations } from "@jsenv/cancellation"
 
 exitSignal.addCallback(
   ({ exceptionArray: actual }) => {

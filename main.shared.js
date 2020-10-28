@@ -13,8 +13,3 @@ export { createCancelError, isCancelError, errorToCancelReason } from "./src/can
 export { composeCancellationToken } from "./src/composeCancellationToken.js"
 export { createCancellationSource } from "./src/createCancellationSource.js"
 export { createCancellationToken } from "./src/createCancellationToken.js"
-
-// a useful helper to avoid throwing on cancellation
-export { catchAsyncFunctionCancellation } from "./src/catchAsyncFunctionCancellation.js"
-// should not be here but its simpler to provide directlry this useful helper
-export { createCancellationTokenForProcessSIGINT } from "./src/createCancellationTokenForProcessSIGINT.js"

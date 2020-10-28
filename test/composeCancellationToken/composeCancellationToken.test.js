@@ -3,7 +3,7 @@ import {
   createCancellationSource,
   createCancellationToken,
   composeCancellationToken,
-} from "../../index.js"
+} from "@jsenv/cancellation"
 
 {
   const cancellationSource = createCancellationSource()
