@@ -1,21 +1,22 @@
-export const wrapFunctionToThrowOnUnhandledRejection = (fn) => async (...args) => {
-  const uninstall = installUnhandledRejectionStrict()
+export const wrapFunctionToConsiderUnhandledRejectionsAsExceptions = (fn) => async (...args) => {
+  const uninstall = installUnhandledRejectionMode()
   try {
     const value = await fn(...args)
-    uninstall()
     return value
-  } catch (e) {
+  } finally {
     // don't remove it immediatly to let nodejs emit the unhandled rejection
     setTimeout(() => {
       uninstall()
     })
-    throw e
   }
 }
 
-const installUnhandledRejectionStrict = () => {
+const installUnhandledRejectionMode = () => {
   const unhandledRejectionArg = getCommandArgument(process.execArgv, "--unhandled-rejections")
   if (unhandledRejectionArg === "strict") {
+    return () => {}
+  }
+  if (unhandledRejectionArg === "throw") {
     return () => {}
   }
 
@@ -24,6 +25,7 @@ const installUnhandledRejectionStrict = () => {
   }
   process.once("unhandledRejection", onUnhandledRejection)
   return () => {
+    console.log("remove")
     process.removeListener("unhandledRejection", onUnhandledRejection)
   }
 }

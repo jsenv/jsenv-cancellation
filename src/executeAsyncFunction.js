@@ -1,16 +1,16 @@
 import { wrapFunctionToCatchCancellation } from "./internal/wrapFunctionToCatchCancellation.js"
-import { wrapFunctionToThrowOnUnhandledRejection } from "./internal/wrapFunctionToThrowOnUnhandledRejection.js"
+import { wrapFunctionToConsiderUnhandledRejectionsAsExceptions } from "./internal/wrapFunctionToConsiderUnhandledRejectionsAsExceptions.js"
 
 export const executeAsyncFunction = (
   fn,
-  { catchCancellation = false, unhandledRejectionStrict = false } = {},
+  { catchCancellation = false, considerUnhandledRejectionsAsExceptions = false } = {},
 ) => {
   if (catchCancellation) {
     fn = wrapFunctionToCatchCancellation(fn)
   }
 
-  if (unhandledRejectionStrict) {
-    fn = wrapFunctionToThrowOnUnhandledRejection(fn)
+  if (considerUnhandledRejectionsAsExceptions) {
+    fn = wrapFunctionToConsiderUnhandledRejectionsAsExceptions(fn)
   }
 
   return fn()
