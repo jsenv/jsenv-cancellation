@@ -298,25 +298,22 @@ const firstOperationMatching = ({
     throw new TypeError(`predicate must be a function, got ${predicate}`);
   }
 
-  return new Promise((resolve, reject) => {
-    const visit = index => {
-      if (index >= array.length) {
-        return resolve();
-      }
+  const visit = async index => {
+    if (index >= array.length) {
+      return undefined;
+    }
 
-      const input = array[index];
-      const returnValue = start(input);
-      return Promise.resolve(returnValue).then(output => {
-        if (predicate(output)) {
-          return resolve(output);
-        }
+    const input = array[index];
+    const output = await start(input);
 
-        return visit(index + 1);
-      }, reject);
-    };
+    if (predicate(output)) {
+      return output;
+    }
 
-    visit(0);
-  });
+    return visit(index + 1);
+  };
+
+  return visit(0);
 };
 
 const createCancelError = reason => {
@@ -466,31 +463,331 @@ const createCancellationSource = () => {
   };
 };
 
-const catchAsyncFunctionCancellation = asyncFunction => {
-  return asyncFunction().catch(error => {
-    if (isCancelError(error)) return;
-    throw error;
+const addCallback = callback => {
+  const triggerHangUpOrDeath = () => callback(); // SIGHUP http://man7.org/linux/man-pages/man7/signal.7.html
+
+
+  process.once("SIGUP", triggerHangUpOrDeath);
+  return () => {
+    process.removeListener("SIGUP", triggerHangUpOrDeath);
+  };
+};
+
+const SIGUPSignal = {
+  addCallback
+};
+
+const addCallback$1 = callback => {
+  // SIGINT is CTRL+C from keyboard also refered as keyboard interruption
+  // http://man7.org/linux/man-pages/man7/signal.7.html
+  // may also be sent by vscode https://github.com/Microsoft/vscode-node-debug/issues/1#issuecomment-405185642
+  process.once("SIGINT", callback);
+  return () => {
+    process.removeListener("SIGINT", callback);
+  };
+};
+
+const SIGINTSignal = {
+  addCallback: addCallback$1
+};
+
+const addCallback$2 = callback => {
+  if (process.platform === "win32") {
+    console.warn(`SIGTERM is not supported on windows`);
+    return () => {};
+  }
+
+  const triggerTermination = () => callback(); // SIGTERM http://man7.org/linux/man-pages/man7/signal.7.html
+
+
+  process.once("SIGTERM", triggerTermination);
+  return () => {
+    process.removeListener("SIGTERM", triggerTermination);
+  };
+};
+
+const SIGTERMSignal = {
+  addCallback: addCallback$2
+};
+
+let beforeExitCallbackArray = [];
+let uninstall;
+
+const addCallback$3 = callback => {
+  if (beforeExitCallbackArray.length === 0) uninstall = install();
+  beforeExitCallbackArray = [...beforeExitCallbackArray, callback];
+  return () => {
+    if (beforeExitCallbackArray.length === 0) return;
+    beforeExitCallbackArray = beforeExitCallbackArray.filter(beforeExitCallback => beforeExitCallback !== callback);
+    if (beforeExitCallbackArray.length === 0) uninstall();
+  };
+};
+
+const install = () => {
+  const onBeforeExit = () => {
+    return beforeExitCallbackArray.reduce(async (previous, callback) => {
+      await previous;
+      return callback();
+    }, Promise.resolve());
+  };
+
+  process.once("beforeExit", onBeforeExit);
+  return () => {
+    process.removeListener("beforeExit", onBeforeExit);
+  };
+};
+
+const beforeExitSignal = {
+  addCallback: addCallback$3
+};
+
+const addCallback$4 = (callback, {
+  collectExceptions = false
+} = {}) => {
+  if (!collectExceptions) {
+    const exitCallback = () => {
+      callback();
+    };
+
+    process.on("exit", exitCallback);
+    return () => {
+      process.removeListener("exit", exitCallback);
+    };
+  }
+
+  const {
+    getExceptions,
+    stop
+  } = trackExceptions();
+
+  const exitCallback = () => {
+    process.removeListener("exit", exitCallback);
+    stop();
+    callback({
+      exceptionArray: getExceptions().map(({
+        exception,
+        origin
+      }) => {
+        return {
+          exception,
+          origin
+        };
+      })
+    });
+  };
+
+  process.on("exit", exitCallback);
+  return () => {
+    process.removeListener("exit", exitCallback);
+  };
+};
+
+const trackExceptions = () => {
+  let exceptionArray = [];
+
+  const unhandledRejectionCallback = (unhandledRejection, promise) => {
+    exceptionArray = [...exceptionArray, {
+      origin: "unhandledRejection",
+      exception: unhandledRejection,
+      promise
+    }];
+  };
+
+  const rejectionHandledCallback = promise => {
+    exceptionArray = exceptionArray.filter(exceptionArray => exceptionArray.promise !== promise);
+  };
+
+  const uncaughtExceptionCallback = (uncaughtException, origin) => {
+    // since node 12.4 https://nodejs.org/docs/latest-v12.x/api/process.html#process_event_uncaughtexception
+    if (origin === "unhandledRejection") return;
+    exceptionArray = [...exceptionArray, {
+      origin: "uncaughtException",
+      exception: uncaughtException
+    }];
+  };
+
+  process.on("unhandledRejection", unhandledRejectionCallback);
+  process.on("rejectionHandled", rejectionHandledCallback);
+  process.on("uncaughtException", uncaughtExceptionCallback);
+  return {
+    getExceptions: () => exceptionArray,
+    stop: () => {
+      process.removeListener("unhandledRejection", unhandledRejectionCallback);
+      process.removeListener("rejectionHandled", rejectionHandledCallback);
+      process.removeListener("uncaughtException", uncaughtExceptionCallback);
+    }
+  };
+};
+
+const exitSignal = {
+  addCallback: addCallback$4
+};
+
+const addCallback$5 = callback => {
+  return eventRace({
+    SIGHUP: {
+      register: SIGUPSignal.addCallback,
+      callback: () => callback("SIGHUP")
+    },
+    SIGINT: {
+      register: SIGINTSignal.addCallback,
+      callback: () => callback("SIGINT")
+    },
+    ...(process.platform === "win32" ? {} : {
+      SIGTERM: {
+        register: SIGTERMSignal.addCallback,
+        callback: () => callback("SIGTERM")
+      }
+    }),
+    beforeExit: {
+      register: beforeExitSignal.addCallback,
+      callback: () => callback("beforeExit")
+    },
+    exit: {
+      register: exitSignal.addCallback,
+      callback: () => callback("exit")
+    }
   });
 };
 
-const createCancellationTokenForProcessSIGINT = () => {
-  const SIGINTCancelSource = createCancellationSource();
-  process.on("SIGINT", () => SIGINTCancelSource.cancel("process interruption"));
-  return SIGINTCancelSource.token;
+const eventRace = eventMap => {
+  const unregisterMap = {};
+
+  const unregisterAll = reason => {
+    return Object.keys(unregisterMap).map(name => unregisterMap[name](reason));
+  };
+
+  Object.keys(eventMap).forEach(name => {
+    const {
+      register,
+      callback
+    } = eventMap[name];
+    unregisterMap[name] = register((...args) => {
+      unregisterAll();
+      callback(...args);
+    });
+  });
+  return unregisterAll;
 };
 
-exports.catchAsyncFunctionCancellation = catchAsyncFunctionCancellation;
+const teardownSignal = {
+  addCallback: addCallback$5
+};
+
+const createCancellationTokenForProcess = () => {
+  const teardownCancelSource = createCancellationSource();
+  teardownSignal.addCallback(reason => teardownCancelSource.cancel(`process ${reason}`));
+  return teardownCancelSource.token;
+};
+
+const wrapFunctionToCatchCancellation = asyncFunction => async (...args) => {
+  try {
+    const value = await asyncFunction(...args);
+    return value;
+  } catch (error) {
+    if (isCancelError(error)) {
+      // it means consume of the function will resolve with a cancelError
+      // but when you cancel it means you're not interested in the result anymore
+      // thanks to this it avoid unhandledRejection
+      return error;
+    }
+
+    throw error;
+  }
+};
+
+const wrapFunctionToConsiderUnhandledRejectionsAsExceptions = fn => async (...args) => {
+  const uninstall = installUnhandledRejectionMode();
+
+  try {
+    const value = await fn(...args);
+    return value;
+  } finally {
+    // don't remove it immediatly to let nodejs emit the unhandled rejection
+    setTimeout(() => {
+      uninstall();
+    });
+  }
+};
+
+const installUnhandledRejectionMode = () => {
+  const unhandledRejectionArg = getCommandArgument(process.execArgv, "--unhandled-rejections");
+
+  if (unhandledRejectionArg === "strict") {
+    return () => {};
+  }
+
+  if (unhandledRejectionArg === "throw") {
+    return () => {};
+  }
+
+  const onUnhandledRejection = reason => {
+    throw reason;
+  };
+
+  process.once("unhandledRejection", onUnhandledRejection);
+  return () => {
+    console.log("remove");
+    process.removeListener("unhandledRejection", onUnhandledRejection);
+  };
+};
+
+const getCommandArgument = (argv, name) => {
+  let i = 0;
+
+  while (i < argv.length) {
+    const arg = argv[i];
+
+    if (arg === name) {
+      return {
+        name,
+        index: i,
+        value: ""
+      };
+    }
+
+    if (arg.startsWith(`${name}=`)) {
+      return {
+        name,
+        index: i,
+        value: arg.slice(`${name}=`.length)
+      };
+    }
+
+    i++;
+  }
+
+  return null;
+};
+
+const executeAsyncFunction = (fn, {
+  catchCancellation = false,
+  considerUnhandledRejectionsAsExceptions = false
+} = {}) => {
+  if (catchCancellation) {
+    fn = wrapFunctionToCatchCancellation(fn);
+  }
+
+  if (considerUnhandledRejectionsAsExceptions) {
+    fn = wrapFunctionToConsiderUnhandledRejectionsAsExceptions(fn);
+  }
+
+  return fn();
+};
+
 exports.composeCancellationToken = composeCancellationToken;
 exports.createAbortableOperation = createAbortableOperation;
 exports.createCancelError = createCancelError;
 exports.createCancellationSource = createCancellationSource;
 exports.createCancellationToken = createCancellationToken;
-exports.createCancellationTokenForProcessSIGINT = createCancellationTokenForProcessSIGINT;
+exports.createCancellationTokenForProcess = createCancellationTokenForProcess;
 exports.createConcurrentOperations = createConcurrentOperations;
 exports.createOperation = createOperation;
 exports.createOperationSequence = createOperationSequence;
 exports.createStoppableOperation = createStoppableOperation;
 exports.errorToCancelReason = errorToCancelReason;
+exports.executeAsyncFunction = executeAsyncFunction;
 exports.firstOperationMatching = firstOperationMatching;
 exports.isCancelError = isCancelError;
+
 //# sourceMappingURL=main.cjs.map

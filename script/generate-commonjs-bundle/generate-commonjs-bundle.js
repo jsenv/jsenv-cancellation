@@ -6,4 +6,7 @@ generateBundle({
   format: "commonjs",
   babelPluginMap: getBabelPluginMapForNode(),
   bundleDirectoryClean: true,
+  entryPointMap: {
+    "./main.node.js": "./main.cjs",
+  },
 })
