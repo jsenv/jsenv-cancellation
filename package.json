@@ -1,6 +1,6 @@
 {
   "name": "@jsenv/cancellation",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Make async function cancellable.",
   "license": "MIT",
   "repository": {
