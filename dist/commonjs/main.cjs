@@ -727,7 +727,6 @@ const installUnhandledRejectionMode = () => {
 
   process.once("unhandledRejection", onUnhandledRejection);
   return () => {
-    console.log("remove");
     process.removeListener("unhandledRejection", onUnhandledRejection);
   };
 };
