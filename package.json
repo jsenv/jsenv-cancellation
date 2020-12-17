@@ -1,6 +1,6 @@
 {
   "name": "@jsenv/cancellation",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Make async function cancellable.",
   "license": "MIT",
   "repository": {
@@ -16,10 +16,10 @@
   "type": "module",
   "exports": {
     ".": {
+      "require": "./dist/commonjs/main.cjs",
       "browser": "./main.browser.js",
       "node": "./main.node.js",
-      "import": "./main.node.js",
-      "require": "./dist/commonjs/main.cjs"
+      "import": "./main.node.js"
     },
     "./": "./"
   },
