@@ -1,7 +1,7 @@
 /.jsenv/
 /coverage/
 /node_modules/
-/import-map.importmap
+/importmap.dev.importmap
 /jsconfig.json
 /package-lock.json
 /secrets.json

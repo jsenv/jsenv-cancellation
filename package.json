@@ -1,7 +1,7 @@
 {
   "name": "@jsenv/cancellation",
-  "version": "2.0.4",
-  "description": "Make async function cancellable.",
+  "version": "3.0.0",
+  "description": "Make async function cancellable",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -41,28 +41,25 @@
     "upload-coverage": "node ./script/upload-coverage/upload-coverage.js",
     "build": "node --experimental-import-meta-resolve ./script/build/build.js",
     "generate-import-map": "node ./script/generate-import-map/generate-import-map.js",
-    "install-git-hooks": "node ./script/install-git-hooks/install-git-hooks.js",
     "dist": "npm run build",
     "postinstall": "npm run generate-import-map",
     "prepublishOnly": "node ./script/transform-package/remove-postinstall.js && npm run dist",
     "postpublish": "node ./script/transform-package/restore-postinstall.js"
   },
-  "dependencies": {
-    "@jsenv/node-signals": "2.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@jsenv/assert": "2.2.5",
-    "@jsenv/codecov-upload": "3.4.3",
-    "@jsenv/core": "18.1.0",
+    "@jsenv/core": "19.0.1",
+    "@jsenv/codecov-upload": "3.5.0",
     "@jsenv/eslint-config": "15.0.1",
-    "@jsenv/github-release-package": "1.2.2",
+    "@jsenv/github-release-package": "1.2.3",
     "@jsenv/importmap-eslint-resolver": "5.0.0",
-    "@jsenv/node-module-import-map": "13.4.1",
-    "@jsenv/package-publish": "1.5.2",
+    "@jsenv/node-module-import-map": "13.6.1",
+    "@jsenv/node-signals": "2.0.1",
+    "@jsenv/package-publish": "1.6.2",
     "@jsenv/prettier-check-project": "5.6.1",
-    "@jsenv/prettier-config": "1.2.0",
-    "eslint": "7.26.0",
-    "eslint-plugin-import": "2.22.1",
-    "prettier": "2.3.0"
+    "eslint": "7.31.0",
+    "eslint-plugin-import": "2.23.4",
+    "prettier": "2.3.2"
   }
 }
