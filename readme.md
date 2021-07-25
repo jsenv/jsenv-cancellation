@@ -10,32 +10,50 @@ Make async function cancellable.
 
 `@jsenv/cancellation` provides a pattern to make your code cancellable. It is an implementation of [cancellation API proposal](https://github.com/tc39/proposal-cancellation/tree/master/stage0) that does not provide 100% of the proposal.
 
+The documentation is incomplete and lacks some example to show how it is meant to be used. You can check [test/server-request/fixtures.js](./test/server-request/fixtures.js) to see a code example.
+
 # Installation
 
 ```console
 npm install @jsenv/cancellation
 ```
 
-# createCancellationTokenForProcess
-
-`createCancellationTokenForProcess` is a function returning a cancellation token cancelled just before process exits. Can be used to close a server before a process exists for instance.
+# createCancellationSource
 
 ```js
-import { createCancellationTokenForProcess } from "@jsenv/util"
-import { startServer } from "somewhere"
+import { createCancellationSource } from "@jsenv/cancellation"
 
-const cancellationToken = createCancellationTokenForProcess()
-const server = await startServer()
-cancellationToken.register(() => {
-  server.stop()
+const cancellationSource = createCancellationSource
+const cancellationToken = cancellationSource.token
+
+process.on("SIGINT", () => {
+  cancellationSource.cancel("process SIGINT")
 })
-```
 
-— source code at [src/createCancellationTokenForProcess.js](./src/createCancellationTokenForProcess.js).
+cancellationToken.register(() => {
+  // do stuff because cancellation is requested (by process SIGINT)
+})
+
+// at any point, throwIfRequested() throw a cancellation error if cancellation is requested (by process SIGINT)
+cancellationToken.throwIfRequested()
+```
 
 # executeAsyncFunction
 
-`executeAsyncFunction` receives an async function and calls it immediatly. By default it won't do anything special but you can control what happens during the function execution using `catchCancellation` and `considerUnhandledRejectionsAsExceptions`.
+`executeAsyncFunction` receives a function, calls it immediatly, awaiting its return value. By default it's equivalent to calling the async function yourself but it can becomes different when using [catchCancellation](#catchCancellation) or [considerUnhandledRejectionsAsExceptions](#considerUnhandledRejectionsAsExceptions).
+
+```js
+import { executeAsyncFunction } from "@jsenv/cancellation"
+
+const value = await executeAsyncFunction(async () => {
+  return "Hello"
+})
+console.log(value)
+```
+
+```console
+Hello
+```
 
 — source code at [src/executeAsyncFunction.js](./src/executeAsyncFunction.js).
 
@@ -45,21 +63,23 @@ It is a boolean which is false by default. When enabled any cancellation error t
 
 By default when a function is cancelled it throws a cancel error. Use `catchCancellation` to avoid the cancellation error to terminates Node.js process with exit code 1.
 
-Without `catchCancellation`
+_Without catchCancellation_
 
 ```js
-import { createCancellationSource } from "@jsenv/cancellation"
+import { createCancellationSource, executeAsyncFunction } from "@jsenv/cancellation"
 
-const fn = async ({ cancellationToken }) => {
-  cancellationToken.throwIfRequested()
-}
+await executeAsyncFunction(
+  async () => {
+    const cancelSource = createCancellationSource()
+    const cancellationToken = cancelSource.token
 
-const cancelSource = createCancellationSource()
-cancelSource.cancel()
-
-await fn({
-  cancellationToken: cancelSource.token,
-})
+    cancelSource.cancel()
+    cancellationToken.throwIfRequested()
+  },
+  {
+    catchCancellation: false,
+  },
+)
 console.log("Hello")
 ```
 
@@ -68,23 +88,19 @@ console.log("Hello")
 CANCEL_ERROR: canceled because toto
 ```
 
-With `catchCancellation`
+_With catchCancellation_
 
 ```js
 import { createCancellationSource, executeAsyncFunction } from "@jsenv/cancellation"
 
-const fn = async ({ cancellationToken }) => {
-  cancellationToken.throwIfRequested()
-}
-
-const cancelSource = createCancellationSource()
-cancelSource.cancel("toto")
-
 await executeAsyncFunction(
-  () =>
-    fn({
-      cancellationToken: cancelSource.token,
-    }),
+  async () => {
+    const cancelSource = createCancellationSource()
+    const cancellationToken = cancelSource.token
+
+    cancelSource.cancel()
+    cancellationToken.throwIfRequested()
+  },
   {
     catchCancellation: true,
   },
@@ -100,13 +116,16 @@ Hello
 As you can see the cancellation error is ignored. You could use `isCancelError` to detect the cancellation like this:
 
 ```js
-import { isCancelError, executeAsyncFunction } from "@jsenv/cancellation"
+import { createCancellationSource, executeAsyncFunction, isCancelError } from "@jsenv/cancellation"
 
 const result = await executeAsyncFunction(
-  () =>
-    fn({
-      cancellationToken: cancelSource.token,
-    }),
+  () => {
+    const cancelSource = createCancellationSource()
+    const cancellationToken = cancelSource.token
+
+    cancelSource.cancel()
+    cancellationToken.throwIfRequested()
+  },
   {
     catchCancellation: true,
   },
@@ -124,22 +143,7 @@ It is a boolean which is false by default. When enabled, any unhandled rejection
 
 In other words any unexpected error ocurring during your function execution will throw even if Node.js process is not in strict mod regarding unhandled rejection.
 
-Without `considerUnhandledRejectionsAsExceptions`
-
-```js
-const fn = async () => {
-  Promise.reject(new Error("toto"))
-}
-
-await fn()
-```
-
-```console
-> node --experimental-top-level-await file.js
-(node:58618) UnhandledPromiseRejectionWarning: Error: toto
-```
-
-With `considerUnhandledRejectionsAsExceptions`
+_When considerUnhandledRejectionsAsExceptions is disabled_
 
 ```js
 import { executeAsyncFunction } from "@jsenv/cancellation"
@@ -148,7 +152,26 @@ const fn = async () => {
   Promise.reject(new Error("toto"))
 }
 
-await executeAsyncFunction(fn, { considerUnhandledRejectionsAsExceptions: true })
+await executeAsyncFunction(fn)
+```
+
+```console
+> node --experimental-top-level-await file.js
+(node:58618) UnhandledPromiseRejectionWarning: Error: toto
+```
+
+_When considerUnhandledRejectionsAsExceptions is enabled_
+
+```js
+import { executeAsyncFunction } from "@jsenv/cancellation"
+
+const fn = async () => {
+  Promise.reject(new Error("toto"))
+}
+
+await executeAsyncFunction(fn, {
+  considerUnhandledRejectionsAsExceptions: true,
+})
 ```
 
 ```console
