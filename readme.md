@@ -2,17 +2,9 @@
 
 Make async function cancellable.
 
-[![github package](https://img.shields.io/github/package-json/v/jsenv/jsenv-cancellation.svg?logo=github&label=package)](https://github.com/jsenv/jsenv-cancellation/packages)
 [![npm package](https://img.shields.io/npm/v/@jsenv/cancellation.svg?logo=npm&label=package)](https://www.npmjs.com/package/@jsenv/cancellation)
-[![github ci](https://github.com/jsenv/jsenv-cancellation/workflows/ci/badge.svg)](https://github.com/jsenv/jsenv-cancellation/actions?workflow=ci)
+[![github main workflow](https://github.com/jsenv/jsenv-cancellation/workflows/main/badge.svg)](https://github.com/jsenv/jsenv-cancellation/actions?workflow=main)
 [![codecov coverage](https://codecov.io/gh/jsenv/jsenv-cancellation/branch/master/graph/badge.svg)](https://codecov.io/gh/jsenv/jsenv-cancellation)
-
-# Table of contents
-
-- [Presentation](#Presentation)
-- [Installation](#installation)
-- [createCancellationTokenForProcess](#createCancellationTokenForProcess)
-- [executeAsyncFunction](#executeAsyncFunction)
 
 # Presentation
 
