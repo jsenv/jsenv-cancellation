@@ -1,3 +1,5 @@
+> ARCHIVED: Replaced by https://github.com/jsenv/abort
+
 # cancellation
 
 Make async function cancellable.
